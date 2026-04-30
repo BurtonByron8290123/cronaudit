@@ -1,0 +1,31 @@
+# cronaudit example configuration
+# Copy to cronaudit.yaml and adjust to your environment.
+
+# log_level controls verbosity: debug | info | warn | error
+log_level: info
+
+jobs:
+  # A nightly database backup job
+  - name: db-backup
+    schedule: "0 2 * * *"   # cron expression: every day at 02:00
+    timeout: 45m             # alert if the job exceeds this duration
+    command: /usr/local/bin/db-backup.sh
+
+  # Hourly cache warm-up
+  - name: cache-warmup
+    schedule: "@hourly"
+    timeout: 5m
+    command: /opt/scripts/warm-cache.sh
+
+  # Weekly report generation every Monday at 06:00
+  - name: weekly-report
+    schedule: "0 6 * * 1"
+    timeout: 20m
+    command: /opt/scripts/generate-report.sh
+
+alerts:
+  # Slack incoming webhook URL (leave empty to disable)
+  slack_webhook: ""
+
+  # Email address to notify on failures (leave empty to disable)
+  email: ""
