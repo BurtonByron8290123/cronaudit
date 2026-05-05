@@ -62,6 +62,9 @@ cronaudit status
 | `schedule` | Cron expression for expected run time | required |
 | `timeout` | Max allowed execution duration | `1m` |
 | `drift` | Allowed schedule drift before alerting | `5m` |
+| `alert_on` | List of conditions to alert on (`failure`, `drift`, `timeout`) | `[failure]` |
+| `notify.slack` | Slack incoming webhook URL for alerts | — |
+| `notify.email` | Email address to send alerts to | — |
 
 ## License
 
