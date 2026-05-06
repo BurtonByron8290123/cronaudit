@@ -57,6 +57,14 @@ func (s *Scheduler) Stop() {
 	s.wg.Wait()
 }
 
+// deadline returns the absolute time by which a job must have finished,
+// given its last completion time, expected interval, and allowed drift.
+func deadline(job config.Job, lastFinished time.Time) time.Time {
+	interval := time.Duration(job.IntervalSeconds) * time.Second
+	drift := time.Duration(job.DriftThresholdSeconds) * time.Second
+	return lastFinished.Add(interval).Add(drift)
+}
+
 // check evaluates each configured job against its expected interval.
 func (s *Scheduler) check(now time.Time) {
 	for _, job := range s.cfg {
@@ -67,9 +75,7 @@ func (s *Scheduler) check(now time.Time) {
 			s.onDrift(job, time.Time{})
 			continue
 		}
-		expected := time.Duration(job.IntervalSeconds) * time.Second
-		deadline := rec.FinishedAt.Add(expected).Add(time.Duration(job.DriftThresholdSeconds) * time.Second)
-		if now.After(deadline) {
+		if now.After(deadline(job, rec.FinishedAt)) {
 			s.onDrift(job, rec.FinishedAt)
 		}
 	}
