@@ -1,31 +1,26 @@
 # cronaudit example configuration
-# Copy to cronaudit.yaml and adjust to your environment.
 
-# log_level controls verbosity: debug | info | warn | error
-log_level: info
+# Path to the syslog file to monitor for cron entries.
+syslog_path: /var/log/syslog
+
+# How often (in milliseconds) to poll the syslog file for new lines.
+poll_interval_ms: 250
+
+# Webhook URL to POST alerts to (e.g. Slack incoming webhook).
+webhook_url: https://hooks.example.com/services/XXX/YYY/ZZZ
 
 jobs:
-  # A nightly database backup job
-  - name: db-backup
-    schedule: "0 2 * * *"   # cron expression: every day at 02:00
-    timeout: 45m             # alert if the job exceeds this duration
-    command: /usr/local/bin/db-backup.sh
+  - name: backup
+    schedule: "0 2 * * *"      # daily at 02:00
+    command: /usr/local/bin/backup.sh
+    timeout_seconds: 3600
 
-  # Hourly cache warm-up
-  - name: cache-warmup
-    schedule: "@hourly"
-    timeout: 5m
-    command: /opt/scripts/warm-cache.sh
+  - name: cleanup
+    schedule: "*/15 * * * *"   # every 15 minutes
+    command: /usr/local/bin/cleanup.sh
+    timeout_seconds: 120
 
-  # Weekly report generation every Monday at 06:00
-  - name: weekly-report
-    schedule: "0 6 * * 1"
-    timeout: 20m
-    command: /opt/scripts/generate-report.sh
-
-alerts:
-  # Slack incoming webhook URL (leave empty to disable)
-  slack_webhook: ""
-
-  # Email address to notify on failures (leave empty to disable)
-  email: ""
+  - name: report
+    schedule: "30 8 * * 1"     # every Monday at 08:30
+    command: /usr/local/bin/report.sh
+    timeout_seconds: 600
